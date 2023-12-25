@@ -27,9 +27,9 @@ lib/libprintfunc.so: src/print-function-pass.cpp
 	mkdir -p lib
 	$(CXX) $(CXXFLAGS) -shared $< -o $@
 
-lib/libpf-rt.a: src/print-function-rt.c
+lib/libpf-rt.a: src/print-function-rt.cpp
 	mkdir -p lib
-	$(CC) $(CFLAGS) -c $< -o lib/pf-rt.o
+	$(CXX) $(CXXFLAGS) -c $< -o lib/pf-rt.o
 	$(AR) rcs $@ lib/pf-rt.o
 
 clean:

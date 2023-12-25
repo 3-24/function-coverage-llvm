@@ -48,9 +48,6 @@ class PrintFunc : public ModulePass {
     FunctionCallee print_enter =
         M.getOrInsertFunction("print_func_entry", voidTy, int8ptrTy, int8ptrTy);
 
-    FunctionCallee print_return =
-        M.getOrInsertFunction("print_func_ret", voidTy, int8ptrTy, int8ptrTy);
-
     IRBuilder<> IRB(M.getContext());
 
     for (auto &F : M) {
@@ -91,15 +88,6 @@ class PrintFunc : public ModulePass {
       llvm::Constant *filename_const = gen_new_string_constant(filename, &IRB, Mod);  
 
       IRB.CreateCall(print_enter, {filename_const, demangled_name_global});
-
-      for (auto &BB : F) {
-        for (auto &IN : BB) {
-          if (isa<ReturnInst>(IN)) {
-            IRB.SetInsertPoint(&IN);
-            IRB.CreateCall(print_return, {filename_const, demangled_name_global});
-          }
-        }
-      }
     }
 
     return true;
