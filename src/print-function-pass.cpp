@@ -65,7 +65,12 @@ class PrintFunc : public ModulePass {
 
       Constant *demangled_name_global =
           gen_new_string_constant(demangled_name, &IRB, Mod);
-      
+
+      // If the function is main, call init_out_file
+      if (function_name == "main") {
+        IRB.CreateCall(init_out);
+      }
+
       // Find the filename
       auto subp = F.getSubprogram();
       if (subp == nullptr) {
@@ -84,11 +89,6 @@ class PrintFunc : public ModulePass {
       }
 
       llvm::Constant *filename_const = gen_new_string_constant(filename, &IRB, Mod);  
-
-      // If the function is main, call init_out_file
-      if (function_name == "main") {
-        IRB.CreateCall(init_out);
-      }
 
       IRB.CreateCall(print_enter, {filename_const, demangled_name_global});
 

@@ -13,12 +13,12 @@ void init_out_file(){
     return;
 } 
 
-void print_func_entry(char * filename, char * func_name) {
-    fprintf(fp, "CALL %s %s\n", filename, func_name);
+void print_func_entry(char * file_name, char * func_name) {
+    fprintf(fp, "CALL %s at %s\n", func_name, file_name);
     return;
 }
 
-void print_func_ret(char * filename, char * func_name) {
-    fprintf(fp, "RET %s %s\n", filename, func_name);
+void print_func_ret(char * file_name, char * func_name) {
+    fprintf(fp, "RET %s at %s\n", func_name, file_name);
     return;
 }
