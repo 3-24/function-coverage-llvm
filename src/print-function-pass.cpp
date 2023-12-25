@@ -42,11 +42,14 @@ class PrintFunc : public ModulePass {
     Type *voidTy = Type::getVoidTy(ctx);
     Type *int8ptrTy = Type::getInt8PtrTy(ctx);
 
+    FunctionCallee init_out =
+        M.getOrInsertFunction("init_out_file", voidTy);
+    
     FunctionCallee print_enter =
-        M.getOrInsertFunction("print_func_entry", voidTy, int8ptrTy);
+        M.getOrInsertFunction("print_func_entry", voidTy, int8ptrTy, int8ptrTy);
 
     FunctionCallee print_return =
-        M.getOrInsertFunction("print_func_ret", voidTy, int8ptrTy);
+        M.getOrInsertFunction("print_func_ret", voidTy, int8ptrTy, int8ptrTy);
 
     IRBuilder<> IRB(M.getContext());
 
@@ -62,14 +65,38 @@ class PrintFunc : public ModulePass {
 
       Constant *demangled_name_global =
           gen_new_string_constant(demangled_name, &IRB, Mod);
+      
+      // Find the filename
+      auto subp = F.getSubprogram();
+      if (subp == nullptr) {
+        continue;
+      }
 
-      IRB.CreateCall(print_enter, {demangled_name_global});
+      const string dirname = subp->getDirectory().str();
+      string filename = subp->getFilename().str();
+
+      if (dirname != ""){
+        filename = dirname + "/" + filename;
+      }
+
+      if (filename.find("/usr/bin") != string::npos) {
+        continue;
+      }
+
+      llvm::Constant *filename_const = gen_new_string_constant(filename, &IRB, Mod);  
+
+      // If the function is main, call init_out_file
+      if (function_name == "main") {
+        IRB.CreateCall(init_out);
+      }
+
+      IRB.CreateCall(print_enter, {filename_const, demangled_name_global});
 
       for (auto &BB : F) {
         for (auto &IN : BB) {
           if (isa<ReturnInst>(IN)) {
             IRB.SetInsertPoint(&IN);
-            IRB.CreateCall(print_return, {demangled_name_global});
+            IRB.CreateCall(print_return, {filename_const, demangled_name_global});
           }
         }
       }
