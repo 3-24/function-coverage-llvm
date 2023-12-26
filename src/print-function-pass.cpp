@@ -41,12 +41,13 @@ class PrintFunc : public ModulePass {
 
     Type *voidTy = Type::getVoidTy(ctx);
     Type *int8ptrTy = Type::getInt8PtrTy(ctx);
+    Type *boolTy = Type::getInt1Ty(ctx);
 
     FunctionCallee init_out =
         M.getOrInsertFunction("init_out_file", voidTy);
     
-    FunctionCallee print_enter =
-        M.getOrInsertFunction("print_func_entry", voidTy, int8ptrTy, int8ptrTy);
+    FunctionCallee print_out =
+        M.getOrInsertFunction("print_func", voidTy, boolTy, int8ptrTy, int8ptrTy);
 
     IRBuilder<> IRB(M.getContext());
 
@@ -85,9 +86,24 @@ class PrintFunc : public ModulePass {
         continue;
       }
 
-      llvm::Constant *filename_const = gen_new_string_constant(filename, &IRB, Mod);  
+      llvm::Constant *filename_const = gen_new_string_constant(filename, &IRB, Mod);
 
-      IRB.CreateCall(print_enter, {filename_const, demangled_name_global});
+      
+      llvm::Constant *false_const = llvm::ConstantInt::get(boolTy, 0, false);
+      llvm::Constant *true_const = llvm::ConstantInt::get(boolTy, 1, false);
+
+
+      IRB.CreateCall(print_out, {true_const, filename_const, demangled_name_global});
+
+
+      for (auto &BB : F) {
+        for (auto &IN : BB) {
+          if (isa<ReturnInst>(IN)) {
+            IRB.SetInsertPoint(&IN);
+            IRB.CreateCall(print_out, {false_const, filename_const, demangled_name_global});
+          }
+        }
+      }
     }
 
     return true;
