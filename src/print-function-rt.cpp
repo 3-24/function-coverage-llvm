@@ -1,5 +1,5 @@
-#include<stdio.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <map>
 #include <string>
@@ -32,6 +32,10 @@ void init_out_file(){
 } 
 
 void print_func(bool is_entry, char * file_name, char * func_name) {
+    if (seq_fp == NULL || rec_fp == NULL){
+        fprintf(stderr, "Ignoring functions that called before main\n");
+        return;
+    }
     pthread_mutex_lock(&lock);
     pair<string, string> func_pair = make_pair(string(file_name), string(func_name));
     if (func_set.find(func_pair) == func_set.end()) {
