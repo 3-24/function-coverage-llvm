@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <pthread.h>
+#include <cassert>
 
 using namespace std;
 
@@ -45,6 +46,8 @@ void print_func(bool is_entry, char * file_name, char * func_name) {
     short func_id = func_set[func_pair];
     fwrite(&is_entry, sizeof(bool), 1, seq_fp);
     fwrite(&func_id, sizeof(short), 1, seq_fp);
+    assert(fflush(rec_fp) == 0);
+    assert(fflush(seq_fp) == 0);
     pthread_mutex_unlock(&lock);
 }
 }
