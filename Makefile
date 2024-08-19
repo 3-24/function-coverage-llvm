@@ -32,5 +32,8 @@ lib/libpf-rt.a: src/print-function-rt.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o lib/pf-rt.o
 	$(AR) rcs $@ lib/pf-rt.o
 
+test: lib/libprintfunc.so lib/libpf-rt.a
+	$(MAKE) -C test
+
 clean:
 	rm -f lib/*.so lib/*.o log

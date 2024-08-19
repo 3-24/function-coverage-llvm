@@ -1,0 +1,4 @@
+0 main at /function-sequence-llvm/test/simple.cc
+1 a() at /function-sequence-llvm/test/simple.cc
+2 b() at /function-sequence-llvm/test/simple.cc
+3 c() at /function-sequence-llvm/test/simple.cc
